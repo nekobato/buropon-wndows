@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Bar</title>
+  </head>
+  <body>
+    <script>
+      const { ipcRenderer } = require('electron');
+
+      document.addEventListener('keydown', e => {
+        e.preventDefault();
+        switch (e.keyCode) {
+          case 37: // left
+            ipcRenderer.send('KEY_INPUT', 'left');
+            break;
+          case 39: // right
+            ipcRenderer.send('KEY_INPUT', 'right');
+            break;
+          case 32: // right
+            ipcRenderer.send('KEY_INPUT', 'space');
+            break;
+
+          default:
+            break;
+        }
+      });
+    </script>
+    <span>bar</span>
+  </body>
+</html>
