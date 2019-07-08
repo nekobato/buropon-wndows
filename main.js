@@ -14,7 +14,7 @@ exports.__esModule = true;
 var path = require("path");
 var electron = require("electron");
 var electron_1 = require("electron");
-var GRAVITY = 1.3;
+var GRAVITY = 0;
 var FRICTION = 1.3;
 var defaultRect = {
     x: 0,
@@ -71,7 +71,6 @@ function createStage(stageNumber) {
     var ballPositions = [];
     var movingLeft = false;
     var movingRight = false;
-    var barDown = false;
     electron_1.ipcMain.on('KEY_DOWN', function (eventName, payload) {
         switch (payload) {
             case 'left':
@@ -96,8 +95,8 @@ function createStage(stageNumber) {
                 ballPositions.push({
                     x: barX,
                     y: y,
-                    vy: 0,
-                    vx: 0
+                    vy: 20,
+                    vx: 16
                 });
             default:
                 break;
@@ -133,20 +132,48 @@ function createStage(stageNumber) {
             });
         }
         // Balls
-        ballWindows.forEach(function (window, i) {
+        ballWindows.forEach(function (window, ballIndex) {
             var ballWindowPosition = window.getBounds();
             var barWindowPosition = barWindow.getBounds();
-            if (ballWindowPosition.x > barWindowPosition.x - defaultRect.width &&
-                ballWindowPosition.x - 40 < barWindowPosition.x &&
-                ballWindowPosition.y > barWindowPosition.y - defaultRect.height &&
-                ballWindowPosition.y - 40 < barWindowPosition.y) {
-                ballPositions[i].vy *= -1;
-                ballPositions[i].vy -= 0.75;
+            if (ballWindowPosition.x + 40 > barWindowPosition.x &&
+                ballWindowPosition.x < barWindowPosition.x + 120 &&
+                ballWindowPosition.y + 40 > barWindowPosition.y &&
+                ballWindowPosition.y < barWindowPosition.y + 40) {
+                ballPositions[ballIndex].vy *= -1;
+                // ballPositions[ballIndex].vy -= 0.75;
             }
-            ballPositions[i].vy += ballPositions[i].vy < 8 ? GRAVITY : 0;
-            ballPositions[i].y += ballPositions[i].vy;
+            else {
+                blockWindows.forEach(function (blockRow, rowIndex) {
+                    blockRow.forEach(function (blockWindow, blockIndex) {
+                        if (!blockWindow) {
+                            return;
+                        }
+                        var windowBounds = blockWindow.getBounds();
+                        if (ballWindowPosition.x + 40 > windowBounds.x &&
+                            ballWindowPosition.x < windowBounds.x + defaultRect.width &&
+                            ballWindowPosition.y + 40 > windowBounds.y &&
+                            ballWindowPosition.y < windowBounds.y + defaultRect.height) {
+                            blockWindow.close();
+                            blockWindows[rowIndex][blockIndex] = null;
+                            ballPositions[ballIndex].vx *= -1;
+                            ballPositions[ballIndex].vy *= -1;
+                        }
+                    });
+                });
+            }
+            if (ballPositions[ballIndex].y + 40 > workAreaSize.height ||
+                ballPositions[ballIndex].y < 22) {
+                ballPositions[ballIndex].vy *= -1;
+            }
+            if (ballPositions[ballIndex].x + 40 > workAreaSize.width || ballPositions[ballIndex].x < 0) {
+                ballPositions[ballIndex].vx *= -1;
+            }
+            // ballPositions[i].vy += ballPositions[i].vy < 8 ? GRAVITY : 0;
+            ballPositions[ballIndex].x += ballPositions[ballIndex].vx;
+            ballPositions[ballIndex].y += ballPositions[ballIndex].vy;
             window.setBounds({
-                y: Math.round(ballPositions[i].y)
+                x: Math.round(ballPositions[ballIndex].x),
+                y: Math.round(ballPositions[ballIndex].y)
             });
         });
     }, 33);
