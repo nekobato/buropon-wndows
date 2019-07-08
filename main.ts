@@ -66,71 +66,112 @@ function createStage(stageNumber: number) {
     });
   });
 
-  let barX = centerPoint.x - defaultRect.x / 2;
+  let barX = centerPoint.x - defaultRect.width / 2;
 
   const barWindow = createWindow(
     {
       x: barX,
       y: workAreaSize.height - defaultRect.height,
-      width: defaultRect.width,
+      width: 120,
       height: defaultRect.height,
     },
     'bar',
   );
 
-  ipcMain.on('KEY_INPUT', (eventName: string, payload: any) => {
+  const ballWindows: any[] = [];
+  const ballPositions: { x: number; y: number; vx: number; vy: number }[] = [];
+
+  let movingLeft = false;
+  let movingRight = false;
+  let barDown = false;
+
+  ipcMain.on('KEY_DOWN', (eventName: string, payload: any) => {
     switch (payload) {
       case 'left':
-        barX -= 12;
-        barWindow.setBounds({
-          x: barX,
-          y: workAreaSize.height - defaultRect.height,
-          width: defaultRect.width,
-          height: defaultRect.height,
-        });
+        movingLeft = true;
         break;
       case 'right':
-        barX += 12;
-        barWindow.setBounds({
-          x: barX,
-        } as electron.Rectangle);
+        movingRight = true;
         break;
       case 'space':
+        barWindow.setBounds({
+          y: workAreaSize.height - defaultRect.height + 40,
+        } as electron.Rectangle);
+        break;
+      case 'enter':
         let y = workAreaSize.height - 120;
-        const ballWindow = createWindow(
-          {
-            x: barX,
-            y,
-            width: 40,
-            height: 40,
-          },
-          'ball',
+        ballWindows.push(
+          createWindow(
+            {
+              x: barX,
+              y,
+              width: 40,
+              height: 40,
+            },
+            'ball',
+          ),
         );
-        let vy = 0; // initial
-        let moment = 0;
-
-        const ballInterval = setInterval(() => {
-          if (
-            ballWindow.getBounds().x > barWindow.getBounds().x - defaultRect.width &&
-            ballWindow.getBounds().x - 40 < barWindow.getBounds().x &&
-            ballWindow.getBounds().y > barWindow.getBounds().y - defaultRect.height &&
-            ballWindow.getBounds().y - 40 < barWindow.getBounds().y
-          ) {
-            vy *= -1;
-            vy -= 0.75;
-          }
-          vy += vy < 8 ? GRAVITY : 0;
-          y += vy;
-          // tslint:disable-next-line
-          ballWindow.setBounds({
-            y: Math.round(y),
-          } as electron.Rectangle);
-        }, 33);
+        ballPositions.push({
+          x: barX,
+          y,
+          vy: 0,
+          vx: 0,
+        });
 
       default:
         break;
     }
   });
+  ipcMain.on('KEY_UP', (eventName: string, payload: any) => {
+    switch (payload) {
+      case 'left':
+        movingLeft = false;
+        break;
+      case 'right':
+        movingRight = false;
+        break;
+      case 'space':
+        barWindow.setBounds({
+          y: workAreaSize.height - defaultRect.height,
+        } as electron.Rectangle);
+        break;
+    }
+  });
+
+  const gameLoop = setInterval(() => {
+    // Bar
+    if (movingLeft) {
+      barX -= 16;
+      barWindow.setBounds({
+        x: barX,
+      } as electron.Rectangle);
+    } else if (movingRight) {
+      barX += 16;
+      barWindow.setBounds({
+        x: barX,
+      } as electron.Rectangle);
+    }
+
+    // Balls
+    ballWindows.forEach((window, i) => {
+      const ballWindowPosition = window.getBounds();
+      const barWindowPosition = barWindow.getBounds();
+      if (
+        ballWindowPosition.x > barWindowPosition.x - defaultRect.width &&
+        ballWindowPosition.x - 40 < barWindowPosition.x &&
+        ballWindowPosition.y > barWindowPosition.y - defaultRect.height &&
+        ballWindowPosition.y - 40 < barWindowPosition.y
+      ) {
+        ballPositions[i].vy *= -1;
+        ballPositions[i].vy -= 0.75;
+      }
+      ballPositions[i].vy += ballPositions[i].vy < 8 ? GRAVITY : 0;
+      ballPositions[i].y += ballPositions[i].vy;
+      window.setBounds({
+        y: Math.round(ballPositions[i].y),
+      } as electron.Rectangle);
+    });
+  }, 33);
 }
 
 app.on('ready', () => {

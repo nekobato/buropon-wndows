@@ -60,59 +60,96 @@ function createStage(stageNumber) {
             }
         });
     });
-    var barX = centerPoint.x - defaultRect.x / 2;
+    var barX = centerPoint.x - defaultRect.width / 2;
     var barWindow = createWindow({
         x: barX,
         y: workAreaSize.height - defaultRect.height,
-        width: defaultRect.width,
+        width: 120,
         height: defaultRect.height
     }, 'bar');
-    electron_1.ipcMain.on('KEY_INPUT', function (eventName, payload) {
+    var ballWindows = [];
+    var ballPositions = [];
+    var movingLeft = false;
+    var movingRight = false;
+    var barDown = false;
+    electron_1.ipcMain.on('KEY_DOWN', function (eventName, payload) {
         switch (payload) {
             case 'left':
-                barX -= 12;
-                barWindow.setBounds({
-                    x: barX,
-                    y: workAreaSize.height - defaultRect.height,
-                    width: defaultRect.width,
-                    height: defaultRect.height
-                });
+                movingLeft = true;
                 break;
             case 'right':
-                barX += 12;
-                barWindow.setBounds({
-                    x: barX
-                });
+                movingRight = true;
                 break;
             case 'space':
-                var y_1 = workAreaSize.height - 120;
-                var ballWindow_1 = createWindow({
+                barWindow.setBounds({
+                    y: workAreaSize.height - defaultRect.height + 40
+                });
+                break;
+            case 'enter':
+                var y = workAreaSize.height - 120;
+                ballWindows.push(createWindow({
                     x: barX,
-                    y: y_1,
+                    y: y,
                     width: 40,
                     height: 40
-                }, 'ball');
-                var vy_1 = 0; // initial
-                var moment = 0;
-                var ballInterval = setInterval(function () {
-                    if (ballWindow_1.getBounds().x > barWindow.getBounds().x - defaultRect.width &&
-                        ballWindow_1.getBounds().x - 40 < barWindow.getBounds().x &&
-                        ballWindow_1.getBounds().y > barWindow.getBounds().y - defaultRect.height &&
-                        ballWindow_1.getBounds().y - 40 < barWindow.getBounds().y) {
-                        vy_1 *= -1;
-                        vy_1 -= 0.75;
-                    }
-                    vy_1 += vy_1 < 8 ? GRAVITY : 0;
-                    y_1 += vy_1;
-                    // tslint:disable-next-line
-                    ballWindow_1.setBounds({
-                        y: Math.round(y_1)
-                    });
-                }, 33);
+                }, 'ball'));
+                ballPositions.push({
+                    x: barX,
+                    y: y,
+                    vy: 0,
+                    vx: 0
+                });
             default:
                 break;
         }
     });
+    electron_1.ipcMain.on('KEY_UP', function (eventName, payload) {
+        switch (payload) {
+            case 'left':
+                movingLeft = false;
+                break;
+            case 'right':
+                movingRight = false;
+                break;
+            case 'space':
+                barWindow.setBounds({
+                    y: workAreaSize.height - defaultRect.height
+                });
+                break;
+        }
+    });
+    var gameLoop = setInterval(function () {
+        // Bar
+        if (movingLeft) {
+            barX -= 16;
+            barWindow.setBounds({
+                x: barX
+            });
+        }
+        else if (movingRight) {
+            barX += 16;
+            barWindow.setBounds({
+                x: barX
+            });
+        }
+        // Balls
+        ballWindows.forEach(function (window, i) {
+            var ballWindowPosition = window.getBounds();
+            var barWindowPosition = barWindow.getBounds();
+            if (ballWindowPosition.x > barWindowPosition.x - defaultRect.width &&
+                ballWindowPosition.x - 40 < barWindowPosition.x &&
+                ballWindowPosition.y > barWindowPosition.y - defaultRect.height &&
+                ballWindowPosition.y - 40 < barWindowPosition.y) {
+                ballPositions[i].vy *= -1;
+                ballPositions[i].vy -= 0.75;
+            }
+            ballPositions[i].vy += ballPositions[i].vy < 8 ? GRAVITY : 0;
+            ballPositions[i].y += ballPositions[i].vy;
+            window.setBounds({
+                y: Math.round(ballPositions[i].y)
+            });
+        });
+    }, 33);
 }
 electron_1.app.on('ready', function () {
     createStage(1);

@@ -14,13 +14,33 @@
         e.preventDefault();
         switch (e.keyCode) {
           case 37: // left
-            ipcRenderer.send('KEY_INPUT', 'left');
+            ipcRenderer.send('KEY_DOWN', 'left');
             break;
           case 39: // right
-            ipcRenderer.send('KEY_INPUT', 'right');
+            ipcRenderer.send('KEY_DOWN', 'right');
             break;
-          case 32: // right
-            ipcRenderer.send('KEY_INPUT', 'space');
+          case 13: // enter
+            ipcRenderer.send('KEY_DOWN', 'enter');
+            break;
+          case 32: // space
+            ipcRenderer.send('KEY_DOWN', 'space');
+            break;
+
+          default:
+            break;
+        }
+      });
+      document.addEventListener('keyup', e => {
+        e.preventDefault();
+        switch (e.keyCode) {
+          case 37: // left
+            ipcRenderer.send('KEY_UP', 'left');
+            break;
+          case 39: // right
+            ipcRenderer.send('KEY_UP', 'right');
+            break;
+          case 32: // space
+            ipcRenderer.send('KEY_UP', 'space');
             break;
 
           default:
