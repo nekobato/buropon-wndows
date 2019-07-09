@@ -1,6 +1,8 @@
 import * as path from 'path';
 import * as electron from 'electron';
 import { app, BrowserWindow, globalShortcut, ipcMain } from 'electron';
+import { ballSize, blockSize } from './sizes';
+import { withBlock, withBar } from './collision';
 
 const GRAVITY = 0;
 const FRICTION = 1.3;
@@ -8,8 +10,8 @@ const FRICTION = 1.3;
 const defaultRect = {
   x: 0,
   y: 0,
-  width: 80,
-  height: 48,
+  width: blockSize.w,
+  height: blockSize.h,
 };
 
 function createWindow(rect: typeof defaultRect, fileName: string) {
@@ -98,7 +100,7 @@ function createStage(stageNumber: number) {
         } as electron.Rectangle);
         break;
       case 'enter':
-        let y = workAreaSize.height - 120;
+        let y = workAreaSize.height - 80;
         ballWindows.push(
           createWindow(
             {
@@ -113,8 +115,8 @@ function createStage(stageNumber: number) {
         ballPositions.push({
           x: barX,
           y,
-          vy: 20,
-          vx: 16,
+          vy: 16,
+          vx: 12,
         });
 
       default:
@@ -153,15 +155,15 @@ function createStage(stageNumber: number) {
 
     // Balls
     ballWindows.forEach((window, ballIndex) => {
-      const ballWindowPosition = window.getBounds();
-      const barWindowPosition = barWindow.getBounds();
-      if (
-        ballWindowPosition.x + 40 > barWindowPosition.x &&
-        ballWindowPosition.x < barWindowPosition.x + 120 &&
-        ballWindowPosition.y + 40 > barWindowPosition.y &&
-        ballWindowPosition.y < barWindowPosition.y + 40
-      ) {
-        ballPositions[ballIndex].vy *= -1;
+      const ballWindowBounds = window.getBounds();
+
+      // collision with Bar
+      if (withBar(ballWindowBounds, barWindow.getBounds())) {
+        // reflect only when the ball go down
+        if (ballPositions[ballIndex].vy > 0) {
+          ballPositions[ballIndex].vy *= -1;
+        }
+
         // ballPositions[ballIndex].vy -= 0.75;
       } else {
         blockWindows.forEach((blockRow: BrowserWindow[], rowIndex: number) => {
@@ -169,17 +171,23 @@ function createStage(stageNumber: number) {
             if (!blockWindow) {
               return;
             }
-            const windowBounds = blockWindow.getBounds();
-            if (
-              ballWindowPosition.x + 40 > windowBounds.x &&
-              ballWindowPosition.x < windowBounds.x + defaultRect.width &&
-              ballWindowPosition.y + 40 > windowBounds.y &&
-              ballWindowPosition.y < windowBounds.y + defaultRect.height
-            ) {
-              blockWindow.close();
-              blockWindows[rowIndex][blockIndex] = null;
-              ballPositions[ballIndex].vx *= -1;
-              ballPositions[ballIndex].vy *= -1;
+
+            // collision with Block
+            switch (withBlock(ballWindowBounds, blockWindow.getBounds())) {
+              case 'top':
+              case 'bottom':
+                blockWindow.close();
+                blockWindows[rowIndex][blockIndex] = null;
+                ballPositions[ballIndex].vy *= -1;
+                break;
+              case 'left':
+              case 'right':
+                blockWindow.close();
+                blockWindows[rowIndex][blockIndex] = null;
+                ballPositions[ballIndex].vx *= -1;
+                break;
+              default:
+                break;
             }
           });
         });
@@ -203,7 +211,7 @@ function createStage(stageNumber: number) {
         y: Math.round(ballPositions[ballIndex].y),
       } as electron.Rectangle);
     });
-  }, 33);
+  }, 16.6);
 }
 
 app.on('ready', () => {

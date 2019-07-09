@@ -14,13 +14,15 @@ exports.__esModule = true;
 var path = require("path");
 var electron = require("electron");
 var electron_1 = require("electron");
+var sizes_1 = require("./sizes");
+var collision_1 = require("./collision");
 var GRAVITY = 0;
 var FRICTION = 1.3;
 var defaultRect = {
     x: 0,
     y: 0,
-    width: 80,
-    height: 48
+    width: sizes_1.blockSize.w,
+    height: sizes_1.blockSize.h
 };
 function createWindow(rect, fileName) {
     var screenWindow = new electron_1.BrowserWindow(__assign({}, rect, { show: true, resizable: true, center: false, webPreferences: {
@@ -85,7 +87,7 @@ function createStage(stageNumber) {
                 });
                 break;
             case 'enter':
-                var y = workAreaSize.height - 120;
+                var y = workAreaSize.height - 80;
                 ballWindows.push(createWindow({
                     x: barX,
                     y: y,
@@ -95,8 +97,8 @@ function createStage(stageNumber) {
                 ballPositions.push({
                     x: barX,
                     y: y,
-                    vy: 20,
-                    vx: 16
+                    vy: 16,
+                    vx: 12
                 });
             default:
                 break;
@@ -133,13 +135,13 @@ function createStage(stageNumber) {
         }
         // Balls
         ballWindows.forEach(function (window, ballIndex) {
-            var ballWindowPosition = window.getBounds();
-            var barWindowPosition = barWindow.getBounds();
-            if (ballWindowPosition.x + 40 > barWindowPosition.x &&
-                ballWindowPosition.x < barWindowPosition.x + 120 &&
-                ballWindowPosition.y + 40 > barWindowPosition.y &&
-                ballWindowPosition.y < barWindowPosition.y + 40) {
-                ballPositions[ballIndex].vy *= -1;
+            var ballWindowBounds = window.getBounds();
+            // collision with Bar
+            if (collision_1.withBar(ballWindowBounds, barWindow.getBounds())) {
+                // reflect only when the ball go down
+                if (ballPositions[ballIndex].vy > 0) {
+                    ballPositions[ballIndex].vy *= -1;
+                }
                 // ballPositions[ballIndex].vy -= 0.75;
             }
             else {
@@ -148,15 +150,22 @@ function createStage(stageNumber) {
                         if (!blockWindow) {
                             return;
                         }
-                        var windowBounds = blockWindow.getBounds();
-                        if (ballWindowPosition.x + 40 > windowBounds.x &&
-                            ballWindowPosition.x < windowBounds.x + defaultRect.width &&
-                            ballWindowPosition.y + 40 > windowBounds.y &&
-                            ballWindowPosition.y < windowBounds.y + defaultRect.height) {
-                            blockWindow.close();
-                            blockWindows[rowIndex][blockIndex] = null;
-                            ballPositions[ballIndex].vx *= -1;
-                            ballPositions[ballIndex].vy *= -1;
+                        // collision with Block
+                        switch (collision_1.withBlock(ballWindowBounds, blockWindow.getBounds())) {
+                            case 'top':
+                            case 'bottom':
+                                blockWindow.close();
+                                blockWindows[rowIndex][blockIndex] = null;
+                                ballPositions[ballIndex].vy *= -1;
+                                break;
+                            case 'left':
+                            case 'right':
+                                blockWindow.close();
+                                blockWindows[rowIndex][blockIndex] = null;
+                                ballPositions[ballIndex].vx *= -1;
+                                break;
+                            default:
+                                break;
                         }
                     });
                 });
@@ -176,7 +185,7 @@ function createStage(stageNumber) {
                 y: Math.round(ballPositions[ballIndex].y)
             });
         });
-    }, 33);
+    }, 16.6);
 }
 electron_1.app.on('ready', function () {
     createStage(1);
