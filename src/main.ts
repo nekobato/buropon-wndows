@@ -1,11 +1,8 @@
-import * as path from 'path';
-import * as electron from 'electron';
+import path from 'path';
+import electron from 'electron';
 import { app, BrowserWindow, globalShortcut, ipcMain } from 'electron';
 import { ballSize, blockSize } from './sizes';
 import { withBlock, withBar } from './collision';
-
-const GRAVITY = 0;
-const FRICTION = 1.3;
 
 const defaultRect = {
   x: 0,
@@ -35,7 +32,7 @@ function createWindow(rect: typeof defaultRect, fileName: string) {
 }
 
 function createStage(stageNumber: number) {
-  const stageData = require(`./data/stages/stage${stageNumber}`);
+  const stageData = require(`../data/stages/stage${stageNumber}`);
 
   const { workAreaSize } = electron.screen.getPrimaryDisplay();
   const centerPoint = {

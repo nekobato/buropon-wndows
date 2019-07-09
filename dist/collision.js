@@ -1,6 +1,6 @@
 "use strict";
-exports.__esModule = true;
-var sizes_1 = require("./sizes");
+Object.defineProperty(exports, "__esModule", { value: true });
+const sizes_1 = require("./sizes");
 function withBlock(ballBounds, blockBounds) {
     if (ballBounds.x + sizes_1.ballSize.hw > blockBounds.x &&
         ballBounds.x + sizes_1.ballSize.hw < blockBounds.x + sizes_1.blockSize.w &&
@@ -43,3 +43,4 @@ function withBar(ballBounds, barBounds) {
     }
 }
 exports.withBar = withBar;
+//# sourceMappingURL=collision.js.map

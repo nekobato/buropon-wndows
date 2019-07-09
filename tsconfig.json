@@ -5,10 +5,10 @@
     "module": "commonjs",
     "target": "es2017",
     "noImplicitAny": true,
-    "outDir": "./lib",
+    "outDir": "./dist",
     "sourceMap": true,
     "esModuleInterop": true
   },
-  "include": ["**/*.ts"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist", "*.config.js"]
 }
