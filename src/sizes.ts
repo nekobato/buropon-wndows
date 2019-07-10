@@ -1,3 +1,15 @@
+export type Bounds = {
+  x: number;
+  y: number;
+};
+
+export type BallStat = {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+};
+
 export const ballSize = {
   w: 40,
   h: 40,
@@ -14,3 +26,5 @@ export const barSize = {
   w: 120,
   h: 40,
 };
+
+export const taskBarHeight = 22;

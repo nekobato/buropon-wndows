@@ -1,9 +1,5 @@
-import { ballSize, blockSize, barSize } from './sizes';
-
-type Bounds = {
-  x: number;
-  y: number;
-};
+import { ballSize, blockSize, barSize, Bounds, BallStat, taskBarHeight } from './sizes';
+import { Size } from 'electron';
 
 type Result = 'top' | 'left' | 'right' | 'bottom' | false;
 
@@ -41,7 +37,7 @@ export function withBlock(ballBounds: Bounds, blockBounds: Bounds): Result {
   }
 }
 
-export function withBar(ballBounds: Bounds, barBounds: Bounds) {
+export function withBar(ballBounds: Bounds, barBounds: Bounds): boolean {
   if (
     ballBounds.x + ballSize.hw > barBounds.x &&
     ballBounds.x + ballSize.hw < barBounds.x + barSize.w &&
@@ -49,6 +45,20 @@ export function withBar(ballBounds: Bounds, barBounds: Bounds) {
     ballBounds.y + ballSize.h < barBounds.y + barSize.h
   ) {
     return true;
+  } else {
+    return false;
+  }
+}
+
+export function withScreen(ballBounds: BallStat, screen: Size): Result {
+  if (ballBounds.y + ballSize.h > screen.height) {
+    return 'bottom';
+  } else if (ballBounds.y < taskBarHeight) {
+    return 'top';
+  } else if (ballBounds.x + ballSize.w > screen.width) {
+    return 'right';
+  } else if (ballBounds.x < 0) {
+    return 'left';
   } else {
     return false;
   }
