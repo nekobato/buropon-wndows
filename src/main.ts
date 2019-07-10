@@ -15,7 +15,7 @@ function createStage(stageNumber: number) {
   let barX = workAreaSize.width / 2 - barSize.w / 2;
   const barWindow = createBar({
     x: barX,
-    y: workAreaSize.height - barSize.h * 2,
+    y: workAreaSize.height - barSize.h,
   });
 
   // create Ball
@@ -35,11 +35,11 @@ function createStage(stageNumber: number) {
         break;
       case 'space':
         barWindow.setBounds({
-          y: workAreaSize.height - barSize.h,
+          y: workAreaSize.height,
         } as electron.Rectangle);
         break;
       case 'enter':
-        let y = workAreaSize.height - 80;
+        let y = workAreaSize.height - barSize.h;
         ballWindows.push(
           createBall({
             x: barX,
@@ -67,7 +67,7 @@ function createStage(stageNumber: number) {
         break;
       case 'space':
         barWindow.setBounds({
-          y: workAreaSize.height - barSize.h * 2,
+          y: workAreaSize.height - barSize.h,
         } as electron.Rectangle);
         break;
     }
