@@ -3,6 +3,7 @@ import { app, BrowserWindow, globalShortcut, ipcMain } from 'electron';
 import { barSize } from './sizes';
 import { withBlock, withBar, withScreen } from './collision';
 import { createBall, createBar, createBlocks } from './windows';
+import menuScene from './menuScene';
 
 function createStage(stageNumber: number) {
   const stageData = require(`../data/stages/stage${stageNumber}`);
@@ -144,6 +145,7 @@ function createStage(stageNumber: number) {
 }
 
 app.on('ready', () => {
+  menuScene();
   createStage(1);
 });
 

@@ -2,6 +2,29 @@ import path from 'path';
 import { ballSize, blockSize, barSize, Bounds, taskBarHeight } from './sizes';
 import { BrowserWindow, Size } from 'electron';
 
+export function createMenu(screen: Size) {
+  let window = new BrowserWindow({
+    x: screen.width / 2 - blockSize.w * 7,
+    y: 0,
+    width: ballSize.w * 14,
+    height: ballSize.h * 14,
+    show: false,
+    resizable: false,
+    center: false,
+    webPreferences: {
+      nodeIntegration: true,
+    },
+  });
+  window.loadURL('file://' + path.resolve(`./public/menu.html`));
+  window.show();
+
+  window.on('closed', function() {
+    window = null;
+  });
+
+  return window;
+}
+
 export function createBall(bounds: Bounds) {
   let window = new BrowserWindow({
     ...bounds,
