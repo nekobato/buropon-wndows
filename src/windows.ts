@@ -1,10 +1,11 @@
 import path from 'path';
 import { ballSize, blockSize, barSize, Bounds, taskBarHeight } from './sizes';
-import { BrowserWindow, Size } from 'electron';
+import electron, { BrowserWindow, Size } from 'electron';
 
-export function createMenu(screen: Size) {
+export function createMenu() {
+  const { workAreaSize } = electron.screen.getPrimaryDisplay();
   let window = new BrowserWindow({
-    x: screen.width / 2 - blockSize.w * 7,
+    x: workAreaSize.width / 2 - blockSize.w * 7,
     y: 0,
     width: ballSize.w * 14,
     height: ballSize.h * 14,

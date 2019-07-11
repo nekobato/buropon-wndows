@@ -2,8 +2,7 @@ import electron from 'electron';
 import { app, BrowserWindow, globalShortcut, ipcMain } from 'electron';
 import { barSize } from './sizes';
 import { withBlock, withBar, withScreen } from './collision';
-import { createBall, createBar, createBlocks } from './windows';
-import menuScene from './menuScene';
+import { createBall, createBar, createBlocks, createMenu } from './windows';
 
 function createStage(stageNumber: number) {
   const stageData = require(`../data/stages/stage${stageNumber}`);
@@ -26,7 +25,7 @@ function createStage(stageNumber: number) {
   let movingLeft = false;
   let movingRight = false;
 
-  ipcMain.on('KEY_DOWN', (eventName: string, payload: any) => {
+  function onKeyDown(eventName: string, payload: any) {
     switch (payload) {
       case 'left':
         movingLeft = true;
@@ -72,6 +71,7 @@ function createStage(stageNumber: number) {
         } as electron.Rectangle);
         break;
     }
+    ipcMain.on('KEY_DOWN', onKeyDown);
   });
 
   const gameLoop = setInterval(() => {
@@ -145,7 +145,7 @@ function createStage(stageNumber: number) {
 }
 
 app.on('ready', () => {
-  menuScene();
+  createMenu();
   createStage(1);
 });
 
