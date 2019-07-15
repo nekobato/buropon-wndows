@@ -1,16 +1,15 @@
 import path from 'path';
 import { ballSize, blockSize, barSize, Bounds, taskBarHeight } from './sizes';
-import electron, { BrowserWindow, Size } from 'electron';
+import { BrowserWindow, Size } from 'electron';
 
-export function createMenu() {
-  const { workAreaSize } = electron.screen.getPrimaryDisplay();
+export function createMenu(workAreaSize: Size) {
   let window = new BrowserWindow({
     x: workAreaSize.width / 2 - blockSize.w * 7,
     y: 0,
     width: ballSize.w * 14,
     height: ballSize.h * 14,
     show: false,
-    resizable: false,
+    resizable: true,
     center: false,
     webPreferences: {
       nodeIntegration: true,

@@ -56,7 +56,7 @@ function createStage(stageNumber: number) {
       default:
         break;
     }
-  });
+  }
   ipcMain.on('KEY_UP', (eventName: string, payload: any) => {
     switch (payload) {
       case 'left':
@@ -145,8 +145,9 @@ function createStage(stageNumber: number) {
 }
 
 app.on('ready', () => {
-  createMenu();
-  createStage(1);
+  const { workAreaSize } = electron.screen.getPrimaryDisplay();
+  createMenu(workAreaSize);
+  // createStage(1);
 });
 
 app.on('will-quit', () => {

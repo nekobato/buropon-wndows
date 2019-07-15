@@ -28,3 +28,8 @@ export const barSize = {
 };
 
 export const taskBarHeight = 22;
+
+export const blockGrid = {
+  row: 13,
+  col: 14,
+};
