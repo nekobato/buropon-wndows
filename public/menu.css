@@ -2,10 +2,14 @@ html,
 body {
   margin: 0;
   padding: 0;
+  width: 750px;
   background: #534331;
 }
 
 .container {
+  position: absolute;
+  top: 0;
+  left: -375px;
   width: 1500px;
   height: 400px;
   transform: scaleX(0.5);
@@ -25,7 +29,7 @@ body {
   display: grid;
   grid-template-columns: 25% 25% 25% 25%;
   grid-template-rows: 20% 20% 20% 20% 20%;
-  margin-top: 16px;
+  margin: 10px 20px 0;
   padding: 16px 0;
   font-size: 40px;
   color: #fff;

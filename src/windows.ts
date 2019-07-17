@@ -3,11 +3,12 @@ import { ballSize, blockSize, barSize, Bounds, taskBarHeight } from './sizes';
 import { BrowserWindow, Size } from 'electron';
 
 export function createMenu(workAreaSize: Size) {
+  const width = 750;
   let window = new BrowserWindow({
-    x: workAreaSize.width / 2 - blockSize.w * 7,
+    x: workAreaSize.width / 2 - width / 2,
     y: 0,
-    width: ballSize.w * 14,
-    height: ballSize.h * 14,
+    width,
+    height: 380,
     show: false,
     resizable: true,
     center: false,
