@@ -29,14 +29,19 @@ export function createMenu(workAreaSize: Size) {
 export function createBall(bounds: Bounds) {
   let window = new BrowserWindow({
     ...bounds,
-    width: ballSize.w,
-    height: ballSize.h,
+    // width: ballSize.w,
+    // height: ballSize.h,
+    useContentSize: true,
     show: false,
     resizable: false,
     center: false,
     webPreferences: {
       nodeIntegration: true,
     },
+    maximizable: false,
+    minimizable: false,
+    closable: false,
+    fullscreenable: false,
   });
   window.loadURL('file://' + path.resolve(`./public/ball.html`));
   window.show();
@@ -59,6 +64,8 @@ export function createBlock(bounds: Bounds, type: string) {
     webPreferences: {
       nodeIntegration: true,
     },
+    minimizable: false,
+    fullscreenable: false,
   });
   window.loadURL('file://' + path.resolve(`./public/blocks/${type}.html`));
   window.show();
@@ -81,6 +88,9 @@ export function createBar(bounds: Bounds) {
     webPreferences: {
       nodeIntegration: true,
     },
+    minimizable: false,
+    closable: false,
+    fullscreenable: false,
   });
   window.loadURL('file://' + path.resolve(`./public/bar.html`));
   window.show();

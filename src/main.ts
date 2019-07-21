@@ -4,8 +4,10 @@ import { barSize } from './sizes';
 import { withBlock, withBar, withScreen } from './collision';
 import { createBall, createBar, createBlocks, createMenu } from './windows';
 
+let menuWindow: BrowserWindow = null;
+
 function createStage(stageNumber: number) {
-  const stageData = require(`../data/stages/stage${stageNumber}`);
+  const stageData = require(`../public/data/stages/stage${stageNumber}`);
   const { workAreaSize } = electron.screen.getPrimaryDisplay();
 
   // create Blocks
@@ -49,8 +51,8 @@ function createStage(stageNumber: number) {
         ballPositions.push({
           x: barX,
           y,
-          vy: 16,
-          vx: 12,
+          vy: 4,
+          vx: 3,
         });
 
       default:
@@ -127,6 +129,7 @@ function createStage(stageNumber: number) {
         case 'top':
         case 'bottom':
           ballPositions[ballIndex].vy *= -1;
+          break;
         case 'left':
         case 'right':
           ballPositions[ballIndex].vx *= -1;
@@ -146,8 +149,13 @@ function createStage(stageNumber: number) {
 
 app.on('ready', () => {
   const { workAreaSize } = electron.screen.getPrimaryDisplay();
-  createMenu(workAreaSize);
-  // createStage(1);
+  menuWindow = createMenu(workAreaSize);
+
+  ipcMain.on('STAGE_SELECT', (_: string, stageNumber: number) => {
+    console.log('stage select', stageNumber);
+    menuWindow.hide();
+    createStage(stageNumber);
+  });
 });
 
 app.on('will-quit', () => {

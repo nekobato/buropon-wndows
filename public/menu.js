@@ -9,8 +9,8 @@ async function main() {
     item.innerText = stages[i] ? stages[i].name : '＊　未登録　＊';
     item.addEventListener('click', e => {
       e.preventDefault();
-      if (stages[i].nameEn) {
-        ipcRenderer.send('StartStage', i);
+      if (stages[i].name) {
+        ipcRenderer.send('STAGE_SELECT', i + 1);
       }
     });
   });
