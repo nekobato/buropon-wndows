@@ -20,7 +20,7 @@
   "homepage": "https://github.com/nekobato/buropon-wndows#readme",
   "dependencies": {
     "electron": "^18.3.7",
-    "electron-builder": "^20.44.4",
+    "electron-builder": "^23.6.0",
     "node-window-manager": "^1.0.3",
     "typescript": "^3.5.2"
   }
